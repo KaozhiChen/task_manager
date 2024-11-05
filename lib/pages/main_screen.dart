@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/theme/colors.dart';
 import 'home_page.dart';
 import 'statistics_page.dart';
 
@@ -30,25 +31,45 @@ class _MainScreenState extends State<MainScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         shape: const CircleBorder(),
+        backgroundColor: thirdColor,
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: Colors.purple,
+        height: 72,
+        notchMargin: 6.0,
+        color: primary,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.list,
-                  color: _selectedIndex == 0 ? Colors.white : Colors.grey[400]),
-              onPressed: () => _onItemTapped(0),
+            Expanded(
+              child: Align(
+                alignment: Alignment.center,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.home,
+                    size: 28,
+                    color:
+                        _selectedIndex == 0 ? Colors.white : Colors.grey[400],
+                  ),
+                  onPressed: () => _onItemTapped(0),
+                ),
+              ),
             ),
-            IconButton(
-              icon: Icon(Icons.history,
-                  color: _selectedIndex == 1 ? Colors.white : Colors.grey[400]),
-              onPressed: () => _onItemTapped(1),
+            Expanded(child: Container()),
+            Expanded(
+              child: Align(
+                alignment: Alignment.center,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.bar_chart,
+                    size: 28,
+                    color:
+                        _selectedIndex == 1 ? Colors.white : Colors.grey[400],
+                  ),
+                  onPressed: () => _onItemTapped(1),
+                ),
+              ),
             ),
           ],
         ),
