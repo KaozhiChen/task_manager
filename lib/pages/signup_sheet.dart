@@ -12,10 +12,16 @@ class SignUpBottomSheet extends StatefulWidget {
 }
 
 class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
-  // form state
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,21 +69,22 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
                 ),
                 const SizedBox(height: 20),
 
-                // form area
+                // Form area
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      //email
                       TextFormField(
                         controller: _emailController,
                         cursorColor: labelColor,
                         decoration: const InputDecoration(
-                            labelText: 'Email',
-                            labelStyle: TextStyle(color: labelColor),
-                            floatingLabelStyle: TextStyle(color: labelColor),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: primary))),
+                          labelText: 'Email',
+                          labelStyle: TextStyle(color: labelColor),
+                          floatingLabelStyle: TextStyle(color: labelColor),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: primary),
+                          ),
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -85,32 +92,27 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
                           return null;
                         },
                       ),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      // email
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      //password
+                      const SizedBox(height: 16),
                       TextFormField(
                         controller: _passwordController,
                         cursorColor: labelColor,
                         decoration: const InputDecoration(
-                            labelText: 'Password',
-                            labelStyle: TextStyle(color: labelColor),
-                            floatingLabelStyle: TextStyle(color: labelColor),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: primary))),
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: labelColor),
+                          floatingLabelStyle: TextStyle(color: labelColor),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: primary),
+                          ),
+                        ),
+                        obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
+                          } else if (value.length < 6) {
+                            return 'Password should be at least 6 characters';
                           }
                           return null;
                         },
-                      ),
-                      const SizedBox(
-                        height: 16,
                       ),
                     ],
                   ),
@@ -120,46 +122,46 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
                 // Sign Up Button
                 InkWell(
                   onTap: () async {
-                    try {
-                      await FirebaseAuth.instance
-                          .createUserWithEmailAndPassword(
-                        email: _emailController.text.trim(),
-                        password: _passwordController.text.trim(),
-                      );
+                    // Validate form
+                    if (_formKey.currentState!.validate()) {
+                      try {
+                        await FirebaseAuth.instance
+                            .createUserWithEmailAndPassword(
+                          email: _emailController.text.trim(),
+                          password: _passwordController.text.trim(),
+                        );
 
-                      // signup successfully
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Signup successful!")),
-                      );
+                        if (!mounted) return;
 
-                      // close bottom sheet
-                      Navigator.pop(context);
-                    } catch (e) {
-                      // fail to signup
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text("Signup failed: ${e.toString()}")),
-                      );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Signup successful!")),
+                        );
+
+                        Navigator.pop(context);
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text("Signup failed: ${e.toString()}")),
+                        );
+                      }
                     }
                   },
                   child: Container(
                     height: 50,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                        gradient:
-                            const LinearGradient(colors: [secondary, primary]),
-                        borderRadius: BorderRadius.circular(30)),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Sign Up",
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: white,
-                              fontWeight: FontWeight.bold),
-                        )
-                      ],
+                      gradient:
+                          const LinearGradient(colors: [secondary, primary]),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Sign Up",
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: white,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),

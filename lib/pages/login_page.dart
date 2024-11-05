@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager/pages/home_page.dart';
 import '../../theme/colors.dart';
 import 'signup_sheet.dart';
 
@@ -149,10 +150,10 @@ class _LoginPageState extends State<LoginPage> {
                             password: _passwordController.text.trim(),
                           );
                           // login successfully
-                          // Navigator.of(context).pushReplacement(
-                          //   MaterialPageRoute(
-                          //       builder: (context) => MainScreen()),
-                          // );
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                                builder: (context) => const HomePage()),
+                          );
                         } catch (e) {
                           // login faild
                           ScaffoldMessenger.of(context).showSnackBar(
