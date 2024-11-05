@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,6 +11,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _taskController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   Future<void> _addTask() async {
     String taskName = _taskController.text.trim();
@@ -30,6 +33,28 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
+          // table calendar
+          TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: _selectedDate,
+            selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
+            calendarFormat: _calendarFormat,
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDate = selectedDay;
+              });
+            },
+            onFormatChanged: (format) {
+              setState(() {
+                _calendarFormat = format;
+              });
+            },
+            availableCalendarFormats: const {
+              CalendarFormat.month: 'Month',
+              CalendarFormat.week: 'Week'
+            },
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
