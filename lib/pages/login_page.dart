@@ -2,7 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/pages/home_page.dart';
+import 'package:task_manager/pages/main_screen.dart';
 import '../../theme/colors.dart';
 import 'signup_sheet.dart';
 
@@ -152,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                           // login successfully
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                                builder: (context) => const HomePage()),
+                                builder: (context) => const MainScreen()),
                           );
                         } catch (e) {
                           // login faild
