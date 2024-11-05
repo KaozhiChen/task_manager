@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../theme/colors.dart';
 import 'signup_sheet.dart';
@@ -11,7 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obscureText = true;
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   void _showSignUpBottomSheet() {
@@ -79,10 +82,9 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(width: 12),
                             Flexible(
                                 child: TextField(
-                              controller: _usernameController,
+                              controller: _emailController,
                               decoration: const InputDecoration(
-                                  labelText: "Username",
-                                  border: InputBorder.none),
+                                  labelText: "Email", border: InputBorder.none),
                               cursorColor: black.withOpacity(0.5),
                             ))
                           ],
@@ -139,7 +141,26 @@ class _LoginPageState extends State<LoginPage> {
                 Column(
                   children: [
                     InkWell(
-                      onTap: () {},
+                      onTap: () async {
+                        try {
+                          await FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text.trim(),
+                          );
+                          // login successfully
+                          // Navigator.of(context).pushReplacement(
+                          //   MaterialPageRoute(
+                          //       builder: (context) => MainScreen()),
+                          // );
+                        } catch (e) {
+                          // login faild
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text("Login failed: ${e.toString()}")),
+                          );
+                        }
+                      },
                       child: Container(
                         height: 50,
                         width: double.infinity,

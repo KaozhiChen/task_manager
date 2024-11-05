@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../theme/colors.dart';
 
@@ -11,7 +14,7 @@ class SignUpBottomSheet extends StatefulWidget {
 class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
   // form state
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -65,19 +68,19 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      //username
+                      //email
                       TextFormField(
-                        controller: _usernameController,
+                        controller: _emailController,
                         cursorColor: labelColor,
                         decoration: const InputDecoration(
-                            labelText: 'Username',
+                            labelText: 'Email',
                             labelStyle: TextStyle(color: labelColor),
                             floatingLabelStyle: TextStyle(color: labelColor),
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(color: primary))),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your username';
+                            return 'Please enter your email';
                           }
                           return null;
                         },
@@ -116,7 +119,29 @@ class _SignUpBottomSheetState extends State<SignUpBottomSheet> {
 
                 // Sign Up Button
                 InkWell(
-                  onTap: () {},
+                  onTap: () async {
+                    try {
+                      await FirebaseAuth.instance
+                          .createUserWithEmailAndPassword(
+                        email: _emailController.text.trim(),
+                        password: _passwordController.text.trim(),
+                      );
+
+                      // signup successfully
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Signup successful!")),
+                      );
+
+                      // close bottom sheet
+                      Navigator.pop(context);
+                    } catch (e) {
+                      // fail to signup
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text("Signup failed: ${e.toString()}")),
+                      );
+                    }
+                  },
                   child: Container(
                     height: 50,
                     width: double.infinity,
