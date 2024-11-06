@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:task_manager/theme/colors.dart';
+
+import '../task_manager.dart';
 
 class AddTask extends StatefulWidget {
   const AddTask({super.key});
@@ -13,6 +16,20 @@ class _AddTaskState extends State<AddTask> {
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   String _priority = 'High';
+
+  Future<void> _addTask() async {
+    String taskName = _taskNameController.text.trim();
+    if (taskName.isNotEmpty && _startTime != null && _endTime != null) {
+      Provider.of<TaskManager>(context, listen: false).addTask(
+        taskName: taskName,
+        startTime: _startTime!,
+        endTime: _endTime!,
+        priority: _priority,
+        context: context,
+      );
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +152,7 @@ class _AddTaskState extends State<AddTask> {
 
           // add button
           ElevatedButton(
-            onPressed: () {},
+            onPressed: _addTask,
             child: const Text("Add Task"),
           ),
         ],
