@@ -65,6 +65,18 @@ class TaskManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  // update tasks
+  Future<void> updateTaskStatus(String id, bool status) async {
+    await _firestore.collection('tasks').doc(id).update({'status': status});
+    _tasks = _tasks.map((task) {
+      if (task['id'] == id) {
+        return {...task, 'status': status};
+      }
+      return task;
+    }).toList();
+    notifyListeners();
+  }
+
   // seleted date
   void updateSelectedDate(DateTime date) {
     _selectedDate = date;
