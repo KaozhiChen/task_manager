@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/theme/colors.dart';
+import 'add_task.dart';
 import 'home_page.dart';
 import 'statistics_page.dart';
 
@@ -24,12 +25,30 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  void _showAddTaskBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: const AddTask(),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex],
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _showAddTaskBottomSheet,
         shape: const CircleBorder(),
         backgroundColor: thirdColor,
         child: const Icon(Icons.add),

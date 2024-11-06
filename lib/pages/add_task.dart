@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/theme/colors.dart';
 
 class AddTask extends StatefulWidget {
   const AddTask({super.key});
@@ -8,15 +9,135 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
+  final TextEditingController _taskNameController = TextEditingController();
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+  String _priority = 'High';
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 16, top: 16, right: 16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text("Add Task",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(
+            height: 16,
+          ),
+          TextField(
+            controller: _taskNameController,
+            decoration: InputDecoration(
+              labelText: "Task Name",
+              hintText: "Enter task name here",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.grey[200],
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: const BorderSide(color: primary),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            ),
+          ),
+          const Divider(),
+          const SizedBox(
+            height: 16,
+          ),
+
+          // start time
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Start Time:"),
+              TextButton(
+                onPressed: () async {
+                  TimeOfDay? picked = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _startTime = picked;
+                    });
+                  }
+                },
+                child: Text(
+                  _startTime != null
+                      ? _startTime!.format(context)
+                      : "Select Time",
+                ),
+              ),
+            ],
+          ),
+          Divider(
+            color: Colors.grey[200],
+          ),
+
+          // End Time
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("End Time:"),
+              TextButton(
+                onPressed: () async {
+                  TimeOfDay? picked = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      _endTime = picked;
+                    });
+                  }
+                },
+                child: Text(
+                  _endTime != null ? _endTime!.format(context) : "Select Time",
+                ),
+              ),
+            ],
+          ),
+          Divider(
+            color: Colors.grey[200],
+          ),
+
+          //priority
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Priority:"),
+              DropdownButton<String>(
+                value: _priority,
+                items: <String>['High', 'Middle', 'Low'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _priority = newValue!;
+                  });
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // add button
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text("Add Task"),
+          ),
         ],
       ),
     );
