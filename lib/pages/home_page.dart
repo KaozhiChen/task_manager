@@ -76,6 +76,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream:
