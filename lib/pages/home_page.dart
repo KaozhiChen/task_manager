@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:task_manager/pages/add_task.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<DateTime> onDateSeleted;
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   DateTime _selectedDate = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  String _sortOption = 'Priority';
 
   void _showEditTaskBottomSheet({String? taskId}) {
     showModalBottomSheet(
@@ -42,6 +44,20 @@ class _HomePageState extends State<HomePage> {
     FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
   }
 
+  // get priority numbers
+  int _getPriorityValue(String priority) {
+    switch (priority) {
+      case 'High':
+        return 1;
+      case 'Middle':
+        return 2;
+      case 'Low':
+        return 3;
+      default:
+        return 4;
+    }
+  }
+
   // get priority colors
   Color _getPriortyColor(String priority) {
     switch (priority) {
@@ -63,129 +79,206 @@ class _HomePageState extends State<HomePage> {
         title: const Text("Task Manager"),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // table calendar
-            TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
-              focusedDay: _selectedDate,
-              selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
-              calendarFormat: _calendarFormat,
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDate = selectedDay;
-                });
-                // pass to MainScreen
-                widget.onDateSeleted(_selectedDate);
-              },
-              onFormatChanged: (format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              },
-              availableCalendarFormats: const {
-                CalendarFormat.month: 'Month',
-                CalendarFormat.week: 'Week'
-              },
-            ),
-            const SizedBox(
-              height: 16,
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              // table calendar
+              TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2030, 12, 31),
+                focusedDay: _selectedDate,
+                selectedDayPredicate: (day) => isSameDay(day, _selectedDate),
+                calendarFormat: _calendarFormat,
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDate = selectedDay;
+                  });
+                  // pass to MainScreen
+                  widget.onDateSeleted(_selectedDate);
+                },
+                onFormatChanged: (format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                },
+                availableCalendarFormats: const {
+                  CalendarFormat.month: 'Month',
+                  CalendarFormat.week: 'Week'
+                },
+              ),
+              const SizedBox(
+                height: 16,
+              ),
 
-            // task list
-            Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('tasks')
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
+              // sorting and filtering
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Row(
+                      children: [
+                        const Text('Sort By:'),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Container(
+                          height: 32,
+                          padding: const EdgeInsets.only(left: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _sortOption,
+                              icon: const Icon(Icons.arrow_drop_down,
+                                  color: Colors.grey),
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 16),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _sortOption = newValue!;
+                                });
+                              },
+                              items: <String>[
+                                'Priority',
+                                'Start Time',
+                                'Status'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Row()
+                  ],
+                ),
+              ),
 
-                      // Filter tasks by selected date
-                      var tasks = snapshot.data!.docs.where((task) {
-                        DateTime taskDate =
-                            (task['date'] as Timestamp).toDate();
-                        return taskDate.year == _selectedDate.year &&
-                            taskDate.month == _selectedDate.month &&
-                            taskDate.day == _selectedDate.day;
-                      }).toList();
+              // task list
+              Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('tasks')
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-                      if (tasks.isEmpty) {
-                        return const Center(
-                          child: Text('No tasks for today.'),
-                        );
-                      }
-                      return SafeArea(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.only(bottom: 40),
-                          itemCount: tasks.length,
-                          itemBuilder: (context, index) {
-                            var task = tasks[index];
-                            return Column(
-                              children: [
-                                Card(
-                                  child: ListTile(
-                                    leading: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width: 6,
-                                          height: 50,
-                                          color: _getPriortyColor(
-                                              task['priority']),
-                                        ),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        Checkbox(
-                                            value: task['status'],
-                                            onChanged: (bool? value) {
-                                              FirebaseFirestore.instance
-                                                  .collection('tasks')
-                                                  .doc(task.id)
-                                                  .update({'status': value});
-                                            }),
-                                      ],
-                                    ),
-                                    title: Text(task['name']),
-                                    subtitle: Text(
-                                        "${task['startTime']} - ${task['endTime']}"),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.edit,
+                        // Filter tasks by selected date
+                        var tasks = snapshot.data!.docs.where((task) {
+                          DateTime taskDate =
+                              (task['date'] as Timestamp).toDate();
+                          return taskDate.year == _selectedDate.year &&
+                              taskDate.month == _selectedDate.month &&
+                              taskDate.day == _selectedDate.day;
+                        }).toList();
+
+                        // sort list according to different features
+                        tasks.sort((a, b) {
+                          switch (_sortOption) {
+                            case 'Priority':
+                              return _getPriorityValue(a['priority'])
+                                  .compareTo(_getPriorityValue(b['priority']));
+                            case 'Start Time':
+                              DateTime startTimeA =
+                                  DateFormat("h:mm a").parse(a['startTime']);
+                              DateTime startTimeB =
+                                  DateFormat("h:mm a").parse(b['startTime']);
+                              return startTimeA.compareTo(startTimeB);
+                            case 'Status':
+                              bool aStatus = a['status'] as bool;
+                              bool bStatus = b['status'] as bool;
+                              return aStatus == bStatus
+                                  ? 0
+                                  : (aStatus ? 1 : -1);
+                            default:
+                              return 0;
+                          }
+                        });
+
+                        if (tasks.isEmpty) {
+                          return const Center(
+                            child: Text('No tasks for today.'),
+                          );
+                        }
+                        return SafeArea(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 40),
+                            itemCount: tasks.length,
+                            itemBuilder: (context, index) {
+                              var task = tasks[index];
+                              return Column(
+                                children: [
+                                  Card(
+                                    child: ListTile(
+                                      leading: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 6,
+                                            height: 50,
+                                            color: _getPriortyColor(
+                                                task['priority']),
                                           ),
-                                          onPressed: () {
-                                            _showEditTaskBottomSheet(
-                                                taskId: task.id);
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.delete,
+                                          const SizedBox(
+                                            width: 8,
                                           ),
-                                          onPressed: () {
-                                            _deleteTask(task.id);
-                                          },
-                                        ),
-                                      ],
+                                          Checkbox(
+                                              value: task['status'],
+                                              onChanged: (bool? value) {
+                                                FirebaseFirestore.instance
+                                                    .collection('tasks')
+                                                    .doc(task.id)
+                                                    .update({'status': value});
+                                              }),
+                                        ],
+                                      ),
+                                      title: Text(task['name']),
+                                      subtitle: Text(
+                                          "${task['startTime']} - ${task['endTime']}"),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                            ),
+                                            onPressed: () {
+                                              _showEditTaskBottomSheet(
+                                                  taskId: task.id);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                            ),
+                                            onPressed: () {
+                                              _deleteTask(task.id);
+                                            },
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      );
-                    }))
-          ],
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      }))
+            ],
+          ),
         ),
       ),
     );
