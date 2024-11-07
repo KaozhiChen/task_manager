@@ -2,19 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:task_manager/pages/login_page.dart';
 import 'theme/colors.dart';
-import 'task_manager.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TaskManager()),
-      ],
-      child: const MyApp(),
-    ),
+    const MyApp(),
   );
 }
 

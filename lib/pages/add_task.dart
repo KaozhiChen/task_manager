@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:task_manager/theme/colors.dart';
 
-import '../task_manager.dart';
-
 class AddTask extends StatefulWidget {
-  const AddTask({super.key});
+  const AddTask({
+    super.key,
+  });
 
   @override
   State<AddTask> createState() => _AddTaskState();
@@ -19,16 +18,7 @@ class _AddTaskState extends State<AddTask> {
 
   Future<void> _addTask() async {
     String taskName = _taskNameController.text.trim();
-    if (taskName.isNotEmpty && _startTime != null && _endTime != null) {
-      Provider.of<TaskManager>(context, listen: false).addTask(
-        taskName: taskName,
-        startTime: _startTime!,
-        endTime: _endTime!,
-        priority: _priority,
-        context: context,
-      );
-      Navigator.of(context).pop();
-    }
+    if (taskName.isNotEmpty && _startTime != null && _endTime != null) {}
   }
 
   @override
