@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:task_manager/theme/colors.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,8 +15,23 @@ class _HomePageState extends State<HomePage> {
   DateTime _selectedDate = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
+  // delete function
   void _deleteTask(String taskId) {
     FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
+  }
+
+  // get priority colors
+  Color _getPriortyColor(String priority) {
+    switch (priority) {
+      case 'High':
+        return Colors.red;
+      case 'Middle':
+        return Colors.yellow;
+      case 'Low':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
   }
 
   @override
@@ -86,17 +102,30 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Card(
                               child: ListTile(
-                                leading: Checkbox(
-                                    value: task['status'],
-                                    onChanged: (bool? value) {
-                                      FirebaseFirestore.instance
-                                          .collection('tasks')
-                                          .doc(task.id)
-                                          .update({'status': value});
-                                    }),
+                                leading: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 50,
+                                      color: _getPriortyColor(task['priority']),
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Checkbox(
+                                        value: task['status'],
+                                        onChanged: (bool? value) {
+                                          FirebaseFirestore.instance
+                                              .collection('tasks')
+                                              .doc(task.id)
+                                              .update({'status': value});
+                                        }),
+                                  ],
+                                ),
                                 title: Text(task['name']),
                                 subtitle: Text(
-                                    "Priority: ${task['priority']}, Time: ${task['startTime']} - ${task['endTime']}"),
+                                    "${task['startTime']} - ${task['endTime']}"),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
