@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   DateTime _selectedDate = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
   String _sortOption = 'Priority';
+  String _filterOption = 'All';
 
   void _showEditTaskBottomSheet({String? taskId}) {
     showModalBottomSheet(
@@ -115,12 +116,14 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         const Text('Sort By:'),
                         const SizedBox(
-                          width: 8,
+                          width: 6,
                         ),
                         Container(
                           height: 32,
@@ -136,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                               icon: const Icon(Icons.arrow_drop_down,
                                   color: Colors.grey),
                               style: const TextStyle(
-                                  color: Colors.black, fontSize: 16),
+                                  color: Colors.black, fontSize: 12),
                               onChanged: (String? newValue) {
                                 setState(() {
                                   _sortOption = newValue!;
@@ -157,7 +160,51 @@ class _HomePageState extends State<HomePage> {
                         )
                       ],
                     ),
-                    Row()
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const Text('Filter:'),
+                        const SizedBox(
+                          width: 6,
+                        ),
+                        Container(
+                          height: 32,
+                          padding: const EdgeInsets.only(left: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _filterOption,
+                              icon: const Icon(Icons.arrow_drop_down,
+                                  color: Colors.grey),
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 12),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _filterOption = newValue!;
+                                });
+                              },
+                              items: <String>[
+                                'All',
+                                'High Priority',
+                                'Middle Priority',
+                                'Low Priority',
+                                'Completed Tasks',
+                                'Incompleted Tasks',
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -179,9 +226,33 @@ class _HomePageState extends State<HomePage> {
                         var tasks = snapshot.data!.docs.where((task) {
                           DateTime taskDate =
                               (task['date'] as Timestamp).toDate();
-                          return taskDate.year == _selectedDate.year &&
-                              taskDate.month == _selectedDate.month &&
-                              taskDate.day == _selectedDate.day;
+                          bool matchesDate =
+                              taskDate.year == _selectedDate.year &&
+                                  taskDate.month == _selectedDate.month &&
+                                  taskDate.day == _selectedDate.day;
+
+                          // filtering tasks
+                          bool matchesFilter = true;
+                          switch (_filterOption) {
+                            case 'High Priority':
+                              matchesFilter = task['priority'] == 'High';
+                              break;
+                            case 'Middle Priority':
+                              matchesFilter = task['priority'] == 'Middle';
+                              break;
+                            case 'Low Priority':
+                              matchesFilter = task['priority'] == 'Low';
+                              break;
+                            case 'Completed Tasks':
+                              matchesFilter = task['status'] == true;
+                              break;
+                            case 'Incompleted Tasks':
+                              matchesFilter = task['status'] == false;
+                              break;
+                            default:
+                              matchesFilter = true;
+                          }
+                          return matchesDate && matchesFilter;
                         }).toList();
 
                         // sort list according to different features
