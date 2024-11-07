@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:task_manager/theme/colors.dart';
+import 'package:task_manager/pages/add_task.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<DateTime> onDateSeleted;
@@ -13,9 +13,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _taskController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
+
+  void _showEditTaskBottomSheet({String? taskId}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: AddTask(
+            selectedDate: _selectedDate,
+            taskId: taskId,
+          ),
+        );
+      },
+    );
+  }
 
   // delete function
   void _deleteTask(String taskId) {
@@ -137,7 +157,10 @@ class _HomePageState extends State<HomePage> {
                                       icon: const Icon(
                                         Icons.edit,
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        _showEditTaskBottomSheet(
+                                            taskId: task.id);
+                                      },
                                     ),
                                     IconButton(
                                       icon: const Icon(
@@ -151,9 +174,6 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            Divider(
-                              color: Colors.grey[300],
-                            )
                           ],
                         );
                       },

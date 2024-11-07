@@ -45,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
             top: 16,
           ),
           child: AddTask(
-            seletedDate: _selectedDate,
+            selectedDate: _selectedDate,
           ),
         );
       },

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:task_manager/theme/colors.dart';
 
 class AddTask extends StatefulWidget {
-  final DateTime seletedDate;
-  const AddTask({super.key, required this.seletedDate});
+  final DateTime selectedDate;
+  final String? taskId;
+  const AddTask({super.key, required this.selectedDate, this.taskId});
 
   @override
   State<AddTask> createState() => _AddTaskState();
@@ -16,13 +17,13 @@ class _AddTaskState extends State<AddTask> {
   TimeOfDay? _endTime;
   String _priority = 'High';
 
-  Future<void> _addTask() async {
+  Future<void> _saveTask() async {
     String taskName = _taskNameController.text.trim();
     if (taskName.isNotEmpty && _startTime != null && _endTime != null) {
       DateTime taskDate = DateTime(
-        widget.seletedDate.year,
-        widget.seletedDate.month,
-        widget.seletedDate.day,
+        widget.selectedDate.year,
+        widget.selectedDate.month,
+        widget.selectedDate.day,
         _startTime!.hour,
         _startTime!.minute,
       );
@@ -31,14 +32,28 @@ class _AddTaskState extends State<AddTask> {
       String formattedEndTime = _endTime!.format(context);
       String priority = _priority;
 
-      await FirebaseFirestore.instance.collection('tasks').add({
-        'name': taskName,
-        'status': false,
-        'date': Timestamp.fromDate(taskDate),
-        'startTime': formattedStartTime,
-        'endTime': formattedEndTime,
-        'priority': priority,
-      });
+      if (widget.taskId == null) {
+        // add model
+        await FirebaseFirestore.instance.collection('tasks').add({
+          'name': taskName,
+          'status': false,
+          'date': Timestamp.fromDate(taskDate),
+          'startTime': formattedStartTime,
+          'endTime': formattedEndTime,
+          'priority': priority,
+        });
+      } else {
+        // update model
+        await FirebaseFirestore.instance
+            .collection('tasks')
+            .doc(widget.taskId)
+            .update({
+          'name': taskName,
+          'startTime': formattedStartTime,
+          'endTime': formattedEndTime,
+          'priority': priority,
+        });
+      }
 
       _taskNameController.clear();
       _startTime = null;
@@ -59,8 +74,9 @@ class _AddTaskState extends State<AddTask> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text("Add Task",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(widget.taskId == null ? "Add Task" : "Edit Task",
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(
             height: 16,
           ),
@@ -173,8 +189,8 @@ class _AddTaskState extends State<AddTask> {
 
           // add button
           ElevatedButton(
-            onPressed: _addTask,
-            child: const Text("Add Task"),
+            onPressed: _saveTask,
+            child: Text(widget.taskId == null ? "Add Task" : "Save Changes"),
           ),
         ],
       ),
