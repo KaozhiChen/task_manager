@@ -14,6 +14,10 @@ class _HomePageState extends State<HomePage> {
   DateTime _selectedDate = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
+  void _deleteTask(String taskId) {
+    FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,20 +82,46 @@ class _HomePageState extends State<HomePage> {
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
                         var task = tasks[index];
-                        return Card(
-                          child: ListTile(
-                            title: Text(task['name']),
-                            subtitle: Text(
-                                "Priority: ${task['priority']}, Time: ${task['startTime']} - ${task['endTime']}"),
-                            trailing: Checkbox(
-                                value: task['status'],
-                                onChanged: (bool? value) {
-                                  FirebaseFirestore.instance
-                                      .collection('tasks')
-                                      .doc(task.id)
-                                      .update({'status': value});
-                                }),
-                          ),
+                        return Column(
+                          children: [
+                            Card(
+                              child: ListTile(
+                                leading: Checkbox(
+                                    value: task['status'],
+                                    onChanged: (bool? value) {
+                                      FirebaseFirestore.instance
+                                          .collection('tasks')
+                                          .doc(task.id)
+                                          .update({'status': value});
+                                    }),
+                                title: Text(task['name']),
+                                subtitle: Text(
+                                    "Priority: ${task['priority']}, Time: ${task['startTime']} - ${task['endTime']}"),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.edit,
+                                      ),
+                                      onPressed: () {},
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                      ),
+                                      onPressed: () {
+                                        _deleteTask(task.id);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              color: Colors.grey[300],
+                            )
+                          ],
                         );
                       },
                     );
