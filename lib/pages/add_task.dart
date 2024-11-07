@@ -1,10 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager/theme/colors.dart';
 
 class AddTask extends StatefulWidget {
-  const AddTask({
-    super.key,
-  });
+  final DateTime seletedDate;
+  const AddTask({super.key, required this.seletedDate});
 
   @override
   State<AddTask> createState() => _AddTaskState();
@@ -18,7 +18,38 @@ class _AddTaskState extends State<AddTask> {
 
   Future<void> _addTask() async {
     String taskName = _taskNameController.text.trim();
-    if (taskName.isNotEmpty && _startTime != null && _endTime != null) {}
+    if (taskName.isNotEmpty && _startTime != null && _endTime != null) {
+      DateTime taskDate = DateTime(
+        widget.seletedDate.year,
+        widget.seletedDate.month,
+        widget.seletedDate.day,
+        _startTime!.hour,
+        _startTime!.minute,
+      );
+
+      String formattedStartTime = _startTime!.format(context);
+      String formattedEndTime = _endTime!.format(context);
+      String priority = _priority;
+
+      await FirebaseFirestore.instance.collection('tasks').add({
+        'name': taskName,
+        'status': false,
+        'date': Timestamp.fromDate(taskDate),
+        'startTime': formattedStartTime,
+        'endTime': formattedEndTime,
+        'priority': priority,
+      });
+
+      _taskNameController.clear();
+      _startTime = null;
+      _endTime = null;
+
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please complete all fields")),
+      );
+    }
   }
 
   @override

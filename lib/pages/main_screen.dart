@@ -13,11 +13,18 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  DateTime _selectedDate = DateTime.now();
 
-  final List<Widget> _pages = [
-    const HomePage(),
-    const StatisticsPage(),
-  ];
+  List<Widget> get _pages => [
+        HomePage(
+          onDateSeleted: (date) {
+            setState(() {
+              _selectedDate = date;
+            });
+          },
+        ),
+        const StatisticsPage(),
+      ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -37,7 +44,9 @@ class _MainScreenState extends State<MainScreen> {
             right: 16,
             top: 16,
           ),
-          child: const AddTask(),
+          child: AddTask(
+            seletedDate: _selectedDate,
+          ),
         );
       },
     );

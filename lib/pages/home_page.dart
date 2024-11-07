@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:task_manager/theme/colors.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final ValueChanged<DateTime> onDateSeleted;
+
+  const HomePage({super.key, required this.onDateSeleted});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -53,6 +55,8 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 _selectedDate = selectedDay;
               });
+              // pass to MainScreen
+              widget.onDateSeleted(_selectedDate);
             },
             onFormatChanged: (format) {
               setState(() {
