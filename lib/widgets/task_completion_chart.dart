@@ -78,7 +78,6 @@ class _TaskCompletionChartState extends State<TaskCompletionChart> {
               alignment: BarChartAlignment.spaceAround,
               barGroups: sortedData.asMap().entries.map((entry) {
                 final index = entry.key;
-                final date = entry.value.key;
                 final completed = entry.value.value['completed'] ?? 0;
                 final incompleted = entry.value.value['incompleted'] ?? 0;
 

@@ -14,34 +14,37 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Statistics")),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               // chart 1
-              Text(
-                "Task Completion and Status",
+              const Text(
+                "Tasks Completion in the past week",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 16),
-              SizedBox(
+              const SizedBox(height: 16),
+              const SizedBox(
                 height: 300,
                 child: TaskCompletionChart(),
               ),
-              Divider(),
-
+              const SizedBox(height: 16),
+              Divider(
+                color: Colors.grey[200],
+              ),
+              const SizedBox(height: 16),
               // chart 2
-              Text(
-                "Task Priority Distribution",
+              const Text(
+                "Task Priority Distribution(All)",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 16),
-              SizedBox(
+              const SizedBox(height: 16),
+              const SizedBox(
                 height: 300,
                 child: TaskPriorityPieChart(),
               ),
-              Divider(),
+              const Divider(),
             ],
           ),
         ),
