@@ -24,8 +24,6 @@ class _AddTaskState extends State<AddTask> {
         widget.selectedDate.year,
         widget.selectedDate.month,
         widget.selectedDate.day,
-        _startTime!.hour,
-        _startTime!.minute,
       );
 
       String formattedStartTime = _startTime!.format(context);
