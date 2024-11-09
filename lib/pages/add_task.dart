@@ -61,10 +61,29 @@ class _AddTaskState extends State<AddTask> {
 
       Navigator.of(context).pop();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please complete all fields")),
-      );
+      _showIncompleteFieldsDialog();
     }
+  }
+
+  // dialog
+  void _showIncompleteFieldsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Incomplete Fields"),
+          content: const Text("Please complete all fields before saving."),
+          actions: [
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
